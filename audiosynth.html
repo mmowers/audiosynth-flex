@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flexible Synth</title>
+<script>
 var Synth, AudioSynth, AudioSynthInstrument;
 !function(){
 
@@ -348,3 +353,17 @@ Synth.loadSoundProfile({
 		);
 	}
 });
+</script>
+
+<body>
+
+	<h1>Enter your frequencies!</h1>
+	<p>This is a paragraph.</p>
+<script>
+function playit(){
+    Synth.play('piano', 'C', 2, 4);
+}
+window.addEventListener('keydown', playit);
+</script>
+</body>
+</html>
