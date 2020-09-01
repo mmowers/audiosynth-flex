@@ -335,8 +335,9 @@ Synth.loadSoundProfile({
 </script>
 
 <body>
-
-	<h1>Enter your frequencies!</h1>
+	<h1>How many Steps?</h1>
+	<input id='num_steps' value='12'>
+	<h1>Frequencies</h1>
 	<form id='key-form'></form>
 <script>
 Synth.setVolume(0.5);
@@ -346,10 +347,9 @@ var keys = ['1','2','3','4','5','6','7','8','9','0','-','=',
 			'z','x','c','v','b','n','m',',','.','/','Shift'
 			]
 var rootNote = 130.8128;
-var default_steps = 12
+var default_steps = 12;
 var form = document.getElementById('key-form');
 for(var k in keys){
-	var freq = rootNote * Math.pow(2, k/default_steps);
 	var label = document.createElement('label');
 	label.setAttribute("for",keys[k]);
 	label.innerHTML = keys[k];
@@ -358,12 +358,17 @@ for(var k in keys){
 	input.type = "text";
 	input.id = keys[k]
 	input.name = keys[k]
-	input.defaultValue = freq;
+	input.defaultValue = rootNote * Math.pow(2, k/default_steps);
 	input.addEventListener('change', e => {
 		Synth.play('piano', e.target.value, 2);
 	});
 	form.appendChild(input);
 }
+document.getElementById('num_steps').addEventListener('change', e => {
+	for(var k in keys){
+		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/e.target.value);
+	}
+});
 window.addEventListener('keydown', function(e){
     Synth.play('piano', document.getElementById(e.key).value, 2);
 });
