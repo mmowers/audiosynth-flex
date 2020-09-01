@@ -2,6 +2,12 @@
 <html>
 <head>
 <title>Flexible Synth</title>
+<style>
+input[type=text]{
+	width: 40px;
+	margin-right: 20px;
+}
+</style>
 <script>
 var Synth, AudioSynth, AudioSynthInstrument;
 !function(){
@@ -335,43 +341,69 @@ Synth.loadSoundProfile({
 </script>
 
 <body>
-	<h1>How many Steps?</h1>
-	<input id='num_steps' value='12'>
-	<h1>Frequencies</h1>
+	<h3>Just play your computer keyboard!</h3>
+	<h3>Instrument</h3>
+	<select name="instrument" id="instrument">
+		<option value="piano">piano</option>
+		<option value="organ">organ</option>
+		<option value="acoustic">acoustic</option>
+		<option value="edm">edm</option>
+	  </select>
+	<h3>Root frequency</h3>
+	<input id='root_freq' type='text' value='130.8128'>
+	<h3>Number of notes in octave</h3>
+	<input id='num_steps' type='text' value='12'>
+	<h3>Duration for each note (seconds)</h3>
+	<input id='duration' type='text' value='2'>
+	<h3>Frequencies of each keyboard key</h3>
 	<form id='key-form'></form>
-	<h1>Just play your computer keyboard!</h1>
+	<h4>Based on code from <a href='https://github.com/keithwhor/audiosynth'>https://github.com/keithwhor/audiosynth</a></h4>
 <script>
 Synth.setVolume(0.5);
+var rootNote = document.getElementById('root_freq').value;
+var default_steps = document.getElementById('num_steps').value;
 var keys = ['1','2','3','4','5','6','7','8','9','0','-','=',
 			'q','w','e','r','t','y','u','i','o','p','[',']',
 			'a','s','d','f','g','h','j','k','l',';',"'",'Enter',
 			'z','x','c','v','b','n','m',',','.','/','Shift'
 			]
-var rootNote = 130.8128;
-var default_steps = 12;
 var form = document.getElementById('key-form');
 for(var k in keys){
 	var label = document.createElement('label');
 	label.setAttribute("for",keys[k]);
-	label.innerHTML = keys[k];
+	label.innerHTML = keys[k] + ' ';
 	form.appendChild(label);
 	var input = document.createElement('input');
 	input.type = "text";
 	input.id = keys[k]
 	input.name = keys[k]
+	// input.setAttribute('class','key_freq');
 	input.defaultValue = rootNote * Math.pow(2, k/default_steps);
-	input.addEventListener('change', e => {
-		Synth.play('piano', e.target.value, 2);
-	});
 	form.appendChild(input);
+	if((parseInt(k)+1) % 12 == 0){
+		var mybr = document.createElement('br');
+		form.appendChild(mybr);
+	}
 }
 document.getElementById('num_steps').addEventListener('change', e => {
+	var rootNote = document.getElementById('root_freq').value;
+	var num_steps = e.target.value;
 	for(var k in keys){
-		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/e.target.value);
+		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
+	}
+});
+document.getElementById('root_freq').addEventListener('change', e => {
+	var rootNote = e.target.value;
+	var num_steps = document.getElementById('num_steps').value;
+	for(var k in keys){
+		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
 	}
 });
 window.addEventListener('keydown', function(e){
-    Synth.play('piano', document.getElementById(e.key).value, 2);
+	var instrument = document.getElementById('instrument').value;
+	var frequency = document.getElementById(e.key).value;
+	var duration = document.getElementById('duration').value;
+    Synth.play(instrument, frequency, duration);
 });
 </script>
 </body>
