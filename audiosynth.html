@@ -341,7 +341,7 @@ Synth.loadSoundProfile({
 </script>
 
 <body>
-	<h3>Just play your computer keyboard!</h3>
+	<h3>Just play your computer keyboard. Keys are shown below.</h3>
 	<h3>Instrument</h3>
 	<select name="instrument" id="instrument">
 		<option value="piano">piano</option>
@@ -349,17 +349,24 @@ Synth.loadSoundProfile({
 		<option value="acoustic">acoustic</option>
 		<option value="edm">edm</option>
 	  </select>
-	<h3>Root frequency</h3>
+	<label>Root frequency (Hz)</label>
 	<input id='root_freq' type='text' value='130.8128'>
-	<h3>Number of notes in octave</h3>
+	<h3>Number of steps to double frequency</h3>
 	<input id='num_steps' type='text' value='12'>
 	<h3>Duration for each note (seconds)</h3>
 	<input id='duration' type='text' value='2'>
-	<h3>Frequencies of each keyboard key</h3>
+	<h3>Volume</h3>
+	<input id='volume' type='text' value='0.5'>
+	<h3>Sample rate (4000 Hz - 44100 Hz)</h3>
+	<input id='sample_rate' type='text' value='44100'>
+	<h3>Frequencies of each computer keyboard key</h3>
 	<form id='key-form'></form>
 	<h4>Based on code from <a href='https://github.com/keithwhor/audiosynth'>https://github.com/keithwhor/audiosynth</a></h4>
 <script>
-Synth.setVolume(0.5);
+var volume = document.getElementById('volume').value
+Synth.setVolume(volume);
+var sample_rate = document.getElementById('sample_rate').value
+Synth.setSampleRate(sample_rate);
 var rootNote = document.getElementById('root_freq').value;
 var default_steps = document.getElementById('num_steps').value;
 var keys = ['1','2','3','4','5','6','7','8','9','0','-','=',
@@ -398,6 +405,14 @@ document.getElementById('root_freq').addEventListener('change', e => {
 	for(var k in keys){
 		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
 	}
+});
+document.getElementById('volume').addEventListener('change', e => {
+	var volume = e.target.value;
+	Synth.setVolume(volume);
+});
+document.getElementById('sample_rate').addEventListener('change', e => {
+	var sample_rate = e.target.value;
+	Synth.setSampleRate(sample_rate);
 });
 window.addEventListener('keydown', function(e){
 	var instrument = document.getElementById('instrument').value;
