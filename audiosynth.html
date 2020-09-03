@@ -7,6 +7,9 @@ input[type=text]{
 	width: 40px;
 	margin-right: 20px;
 }
+h3{
+	margin-bottom:0;
+}
 </style>
 <script>
 var Synth, AudioSynth, AudioSynthInstrument;
@@ -359,9 +362,12 @@ Synth.loadSoundProfile({
 	<input id='volume' type='text' value='0.5'>
 	<h3>Sample rate (4000 Hz - 44100 Hz)</h3>
 	<input id='sample_rate' type='text' value='44100'>
-	<h3>Frequencies of each computer keyboard key</h3>
+	<h3>Frequencies of each computer keyboard key (can be edited)</h3>
 	<form id='key-form'></form>
-	<h4>Based on code from <a href='https://github.com/keithwhor/audiosynth'>https://github.com/keithwhor/audiosynth</a></h4>
+	<h3>Pleasing ratios and closest key (from root)</h3>
+	<table id='ratios'></table>
+	<h4>Github: <a href='https://github.com/mmowers/audiosynth-flex'>https://github.com/mmowers/audiosynth-flex</a></h4>
+	<h4>Forked from: <a href='https://github.com/keithwhor/audiosynth'>https://github.com/keithwhor/audiosynth</a></h4>
 <script>
 var volume = document.getElementById('volume').value
 Synth.setVolume(volume);
@@ -383,21 +389,66 @@ for(var k in keys){
 	var input = document.createElement('input');
 	input.type = "text";
 	input.id = keys[k]
-	input.name = keys[k]
-	// input.setAttribute('class','key_freq');
+	input.setAttribute('class','key-freq');
 	input.defaultValue = rootNote * Math.pow(2, k/default_steps);
 	form.appendChild(input);
 	if((parseInt(k)+1) % 12 == 0){
 		var mybr = document.createElement('br');
 		form.appendChild(mybr);
 	}
+	input.addEventListener('change', analyze_ratios);
 }
+var ratios = {
+	'1/1':1,
+	'9/8':9/8,
+	'8/7':8/7,
+	'7/6':7/6,
+	'6/5 (Mnr Third)':6/5,
+	'5/4 (Maj Third)':5/4,
+	'9/7':9/7,
+	'4/3 (P Fourth)':4/3,
+	'7/5':7/5,
+	'3/2 (P Fifth)':3/2,
+	'8/5':8/5,
+	'5/3':5/3,
+	'7/4 (P Seventh)':7/4,
+	'9/5':9/5,
+	'2/1 (Octave)': 2,
+};
+function analyze_ratios(){
+	var ratioSection = document.getElementById('ratios');
+	ratioSection.innerHTML = '<tr><th>Ratio from Root</th><th>Frequency (Hz)</th><th>Closest Freq (Hz)</th><th>Symbol</th><th>Steps</th><th>Error</th></tr>';
+	var rootNote = document.getElementById('root_freq').value;
+	for(var r in ratios){
+		var freq = ratios[r]*rootNote;
+		var key_freqs = document.getElementsByClassName('key-freq');
+		var min_abs_error = 100000;
+		for(var i in key_freqs){
+			var key_freq = parseFloat(key_freqs[i].value);
+			var error = (key_freq - freq)/freq;
+			var abs_error = Math.abs(error);
+			if(abs_error < min_abs_error){
+				min_key_freq = key_freq;
+				min_error = error;
+				min_abs_error = abs_error;
+				min_key = key_freqs[i].id;
+				min_steps = i;
+			}
+		}
+		var ratio_row = document.createElement('tr');
+		ratio_row.innerHTML = '<td>' + r + '</td>' + '<td>' + freq.toFixed(2) + '</td>' + '<td>' + min_key_freq.toFixed(2) + '</td>' + '<td>' + min_key + '</td>' + '<td>' + min_steps + '</td>' + '<td>' + (min_error*100).toFixed(2) + '%</td>';
+		ratioSection.appendChild(ratio_row);
+	}
+}
+analyze_ratios();
+
 document.getElementById('num_steps').addEventListener('change', e => {
 	var rootNote = document.getElementById('root_freq').value;
 	var num_steps = e.target.value;
 	for(var k in keys){
 		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
 	}
+	analyze_ratios();
 });
 document.getElementById('root_freq').addEventListener('change', e => {
 	var rootNote = e.target.value;
@@ -405,6 +456,7 @@ document.getElementById('root_freq').addEventListener('change', e => {
 	for(var k in keys){
 		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
 	}
+	analyze_ratios();
 });
 document.getElementById('volume').addEventListener('change', e => {
 	var volume = e.target.value;
