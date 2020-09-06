@@ -351,11 +351,18 @@ Synth.loadSoundProfile({
 		<option value="organ">organ</option>
 		<option value="acoustic">acoustic</option>
 		<option value="edm">edm</option>
-	  </select>
+	</select>
 	<h3>Root frequency (Hz)</h3>
 	<input id='root_freq' type='text' value='130.8128'>
 	<h3>Number of steps to double frequency</h3>
 	<input id='num_steps' type='text' value='12'>
+	<h3>-Or- Custom computer key mapping</h3>
+	<select name="custom" id="custom">
+		<option value="none">None (use number of steps above)</option>
+		<option value="standard-piano">standard piano</option>
+		<option value="19-TET">19-TET</option>
+		<option value="perfect-ratios">perfect ratios</option>
+	</select>
 	<h3>Duration for each note (seconds)</h3>
 	<input id='duration' type='text' value='2'>
 	<h3>Volume</h3>
@@ -398,6 +405,17 @@ for(var k in keys){
 	}
 	input.addEventListener('change', analyze_ratios);
 }
+
+//give custom orders of keys. They will start at b
+var custom_maps = {'standard-piano':{}, '19-TET':{}, 'perfect-ratios':{}};
+var piano_map = [
+	'q','2','w','3','e','r','5','t','6','y','7','u',
+	'z','s','x','d','c','v','g','b','h','n','j','m',
+];
+var tet_19_map = [
+	'z','s','e','x','d','r','c','f','v','g','y','b','h','u','n','j','i','m','k',','
+];
+
 var ratios = {
 	'1/1':1,
 	'2/1 (Octave)': 2,
@@ -409,7 +427,16 @@ var ratios = {
 	'7/4 (P Seventh)':7/4,
 	'7/5':7/5,
 	'7/6':7/6,
+	'8/5':8/5,
+	'8/7':8/7,
+	'9/5':9/5,
+	'9/7':9/7,
+	'9/8':9/8,
+	'10/7':10/7,
+	'10/9':10/9,
 };
+sorted_ratios = Object.values(ratios).sort(function(a, b){return a-b});
+
 function analyze_ratios(){
 	var ratioSection = document.getElementById('ratios');
 	ratioSection.innerHTML = '<tr><th>Ratio from Root</th><th>Frequency (Hz)</th><th>Closest Freq (Hz)</th><th>Symbol</th><th>Steps</th><th>Error</th></tr>';
@@ -450,6 +477,43 @@ document.getElementById('root_freq').addEventListener('change', e => {
 	var num_steps = document.getElementById('num_steps').value;
 	for(var k in keys){
 		document.getElementById(keys[k]).value = rootNote * Math.pow(2, k/num_steps);
+	}
+	analyze_ratios();
+});
+document.getElementById('custom').addEventListener('change', e => {
+	var rootNote = document.getElementById('root_freq').value;
+	switch(e.target.value) {
+		case 'standard-piano':
+			for(var k in piano_map){
+				document.getElementById(piano_map[k]).value = rootNote * Math.pow(2, k/12);
+			}
+			for(var k in keys){
+				if(!piano_map.includes(keys[k])){
+					document.getElementById(keys[k]).value = 0;
+				}
+			}
+			break;
+		case '19-TET':
+			for(var k in tet_19_map){
+				document.getElementById(tet_19_map[k]).value = rootNote * Math.pow(2, k/12);
+			}
+			for(var k in keys){
+				if(!tet_19_map.includes(keys[k])){
+					document.getElementById(keys[k]).value = 0;
+				}
+			}
+			break;
+		case 'perfect-ratios':
+			for(var k in keys){
+				if(k < sorted_ratios.length){
+					document.getElementById(keys[k]).value = rootNote * sorted_ratios[k];
+				} else{
+					document.getElementById(keys[k]).value = 0;
+				}
+			}
+			break;
+		default:
+			//pass
 	}
 	analyze_ratios();
 });
