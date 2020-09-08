@@ -369,7 +369,7 @@ Synth.loadSoundProfile({
 	<input id='volume' type='text' value='0.5'>
 	<h3>Sample rate (4000 Hz - 44100 Hz)</h3>
 	<input id='sample_rate' type='text' value='44100'>
-	<h3>Frequencies of each computer keyboard key (can be edited)</h3>
+	<h3>Frequencies of each computer keyboard key (Hz). Frequencies can be edited. Clicking/tapping label will also play key.</h3>
 	<form id='key-form'></form>
 	<h3>Pleasing ratios and closest key (from root)</h3>
 	<table id='ratios'></table>
@@ -525,12 +525,27 @@ document.getElementById('sample_rate').addEventListener('change', e => {
 	var sample_rate = e.target.value;
 	Synth.setSampleRate(sample_rate);
 });
-window.addEventListener('keydown', function(e){
+
+function play_freq(frequency){
 	var instrument = document.getElementById('instrument').value;
-	var frequency = document.getElementById(e.key).value;
 	var duration = document.getElementById('duration').value;
     Synth.play(instrument, frequency, duration);
-});
+}
+
+var isMobile = !!navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i);
+if(isMobile) {
+	window.addEventListener('touchstart', function(e){
+		play_freq(e.target.nextSibling.value);
+	});
+} else {
+	window.addEventListener('mousedown', function(e){
+		play_freq(e.target.nextSibling.value);
+	});
+	window.addEventListener('keydown', function(e){
+		play_freq(document.getElementById(e.key).value);
+	});
+}
+
 </script>
 </body>
 </html>
