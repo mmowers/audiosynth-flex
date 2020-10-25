@@ -362,6 +362,12 @@ Synth.loadSoundProfile({
 		<option value="standard-piano">standard piano</option>
 		<option value="19-TET">19-TET</option>
 		<option value="perfect-ratios">perfect ratios</option>
+		<option value="major">Major (Sankara Bharanam)</option>
+		<option value="natural_minor">Natural Minor (Natabhairavi)</option>
+		<option value="harmonic_minor">Harmonic Minor (Kiravani)</option>
+		<option value="jazz_minor">Jazz Minor (Gourimanohari)</option>
+		<option value="melodic_minor">Melodic Minor</option>
+		<option value="hamsa_nandi">Hamsa nandi</option>
 	</select>
 	<h3>Duration for each note (seconds)</h3>
 	<input id='duration' type='text' value='2'>
@@ -406,8 +412,6 @@ for(var k in keys){
 	input.addEventListener('change', analyze_ratios);
 }
 
-//give custom orders of keys. They will start at b
-var custom_maps = {'standard-piano':{}, '19-TET':{}, 'perfect-ratios':{}};
 var piano_map = [
 	'q','2','w','3','e','r','5','t','6','y','7','u',
 	'z','s','x','d','c','v','g','b','h','n','j','m',
@@ -415,6 +419,16 @@ var piano_map = [
 var tet_19_map = [
 	'z','s','e','x','d','r','c','f','v','g','y','b','h','u','n','j','i','m','k',','
 ];
+
+//The following are coded by half steps in 12-tet
+var set_scale_12tet = {
+	'major': [0,2,4,5,7,9,11],
+	'natural_minor': [0,2,3,5,7,8,10],
+	'harmonic_minor': [0,2,3,5,7,8,11],
+	'jazz_minor': [0,2,3,5,7,9,11], //aka heptatonia seconda, Ionian ♭3, Major ♭3
+	'melodic_minor': [0,2,3,5,7,8,9,10,11], //Ascending is jazz minor and descending is natural minor
+	'hamsa_nandi': [0,1,4,6,9,11], //See https://www.facebook.com/204266/posts/10105744404953223/?extid=0
+};
 
 var ratios = {
 	'1/1':1,
@@ -436,6 +450,7 @@ var ratios = {
 	'10/9':10/9,
 };
 sorted_ratios = Object.values(ratios).sort(function(a, b){return a-b});
+sorted_ratios.pop();
 
 function analyze_ratios(){
 	var ratioSection = document.getElementById('ratios');
@@ -484,32 +499,41 @@ document.getElementById('custom').addEventListener('change', e => {
 	var rootNote = document.getElementById('root_freq').value;
 	switch(e.target.value) {
 		case 'standard-piano':
-			for(var k in piano_map){
+			for(let k = 0; k < piano_map.length; k++){
 				document.getElementById(piano_map[k]).value = rootNote * Math.pow(2, k/12);
 			}
-			for(var k in keys){
+			for(let k = 0; k < keys.length; k++){
 				if(!piano_map.includes(keys[k])){
 					document.getElementById(keys[k]).value = 0;
 				}
 			}
 			break;
 		case '19-TET':
-			for(var k in tet_19_map){
+			for(let k = 0; k < tet_19_map.length; k++){
 				document.getElementById(tet_19_map[k]).value = rootNote * Math.pow(2, k/12);
 			}
-			for(var k in keys){
+			for(let k = 0; k < keys.length; k++){
 				if(!tet_19_map.includes(keys[k])){
 					document.getElementById(keys[k]).value = 0;
 				}
 			}
 			break;
 		case 'perfect-ratios':
-			for(var k in keys){
-				if(k < sorted_ratios.length){
-					document.getElementById(keys[k]).value = rootNote * sorted_ratios[k];
-				} else{
-					document.getElementById(keys[k]).value = 0;
-				}
+			var ratios_len = sorted_ratios.length;
+			for(let k = 0; k < keys.length; k++){
+				document.getElementById(keys[k]).value = rootNote *  Math.pow(2, Math.floor(k/ratios_len)) * sorted_ratios[k%ratios_len];
+			}
+			break;
+		case 'major':
+		case 'natural_minor':
+		case 'harmonic_minor':
+		case 'jazz_minor':
+		case 'melodic_minor':
+		case 'hamsa_nandi':
+			var scale = set_scale_12tet[e.target.value];
+			var scale_len = scale.length;
+			for(let k = 0; k < keys.length; k++){
+				document.getElementById(keys[k]).value = rootNote * Math.pow(2, Math.floor(k/scale_len) + scale[k%scale_len]/12);
 			}
 			break;
 		default:
