@@ -368,6 +368,7 @@ Synth.loadSoundProfile({
 		<option value="jazz_minor">Jazz Minor (Gourimanohari)</option>
 		<option value="melodic_minor">Melodic Minor</option>
 		<option value="hamsa_nandi">Hamsa nandi</option>
+		<option value="jyotiswarupini">Jyotiswarupini</option>
 	</select>
 	<h3>Duration for each note (seconds)</h3>
 	<input id='duration' type='text' value='2'>
@@ -428,6 +429,7 @@ var set_scale_12tet = {
 	'jazz_minor': [0,2,3,5,7,9,11], //aka heptatonia seconda, Ionian ♭3, Major ♭3
 	'melodic_minor': [0,2,3,5,7,8,9,10,11], //Ascending is jazz minor and descending is natural minor
 	'hamsa_nandi': [0,1,4,6,9,11], //See https://www.facebook.com/204266/posts/10105744404953223/?extid=0
+	'jyotiswarupini': [0,3,4,6,7,8,10],
 };
 
 var ratios = {
@@ -530,6 +532,7 @@ document.getElementById('custom').addEventListener('change', e => {
 		case 'jazz_minor':
 		case 'melodic_minor':
 		case 'hamsa_nandi':
+		case 'jyotiswarupini':
 			var scale = set_scale_12tet[e.target.value];
 			var scale_len = scale.length;
 			for(let k = 0; k < keys.length; k++){
