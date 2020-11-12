@@ -367,7 +367,8 @@ Synth.loadSoundProfile({
 		<option value="harmonic_minor">Harmonic Minor (Kiravani)</option>
 		<option value="jazz_minor">Jazz Minor (Gourimanohari)</option>
 		<option value="melodic_minor">Melodic Minor</option>
-		<option value="shuddhadhanyasi"> Shuddhadhanyasi (Blues Run)</option>
+		<option value="major_pent"> Major Pentatonic</option>
+		<option value="shuddhadhanyasi"> Minor Pentatonic (Shuddhadhanyasi)</option>
 		<option value="hamsa_nandi">Hamsa nandi</option>
 		<option value="jyotiswarupini">Jyotiswarupini</option>
 	</select>
@@ -429,7 +430,8 @@ var set_scale_12tet = {
 	'harmonic_minor': [0,2,3,5,7,8,11],
 	'jazz_minor': [0,2,3,5,7,9,11], //aka heptatonia seconda, Ionian ♭3, Major ♭3
 	'melodic_minor': [0,2,3,5,7,8,9,10,11], //Ascending is jazz minor and descending is natural minor
-	'shuddhadhanyasi': [0,3,5,7,10], //Blues Run
+	'major_pent': [0,2,4,7,9],
+	'shuddhadhanyasi': [0,3,5,7,10], //Minor Pentatonic
 	'hamsa_nandi': [0,1,4,6,9,11], //See https://www.facebook.com/204266/posts/10105744404953223/?extid=0
 	'jyotiswarupini': [0,3,4,6,7,8,10],
 };
@@ -453,6 +455,7 @@ var ratios = {
 	'10/7':10/7,
 	'10/9':10/9,
 };
+
 sorted_ratios = Object.values(ratios).sort(function(a, b){return a-b});
 sorted_ratios.pop();
 
@@ -501,7 +504,11 @@ document.getElementById('root_freq').addEventListener('change', e => {
 });
 document.getElementById('custom').addEventListener('change', e => {
 	var rootNote = document.getElementById('root_freq').value;
-	switch(e.target.value) {
+	var scale_key = e.target.value;
+	if(scale_key in set_scale_12tet){
+		scale_key = 'set_scale_12tet';
+	}
+	switch(scale_key) {
 		case 'standard-piano':
 			for(let k = 0; k < piano_map.length; k++){
 				document.getElementById(piano_map[k]).value = rootNote * Math.pow(2, k/12);
@@ -528,14 +535,7 @@ document.getElementById('custom').addEventListener('change', e => {
 				document.getElementById(keys[k]).value = rootNote *  Math.pow(2, Math.floor(k/ratios_len)) * sorted_ratios[k%ratios_len];
 			}
 			break;
-		case 'major':
-		case 'natural_minor':
-		case 'harmonic_minor':
-		case 'jazz_minor':
-		case 'melodic_minor':
-		case 'shuddhadhanyasi':
-		case 'hamsa_nandi':
-		case 'jyotiswarupini':
+		case 'set_scale_12tet':
 			var scale = set_scale_12tet[e.target.value];
 			var scale_len = scale.length;
 			for(let k = 0; k < keys.length; k++){
