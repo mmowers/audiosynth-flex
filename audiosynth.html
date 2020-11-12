@@ -362,18 +362,6 @@ Synth.loadSoundProfile({
 		<option value="standard-piano">standard piano</option>
 		<option value="19-TET">19-TET</option>
 		<option value="perfect-ratios">perfect ratios</option>
-		<option value="major">Major (Sankara Bharanam)</option>
-		<option value="natural_minor">Natural Minor (Natabhairavi)</option>
-		<option value="harmonic_minor">Harmonic Minor (Kiravani)</option>
-		<option value="jazz_minor">Jazz Minor (Gourimanohari)</option>
-		<option value="melodic_minor">Melodic Minor</option>
-		<option value="major_pent"> Major Pentatonic</option>
-		<option value="shuddhadhanyasi"> Minor Pentatonic (Shuddhadhanyasi)</option>
-		<option value="blues_hexatonic"> Blues Hexatonic</option>
-		<option value="jog"> Jog</option>
-		<option value="nilamani"> Nilamani</option>
-		<option value="hamsa_nandi">Hamsa nandi</option>
-		<option value="jyotiswarupini">Jyotiswarupini</option>
 	</select>
 	<h3>Duration for each note (seconds)</h3>
 	<input id='duration' type='text' value='2'>
@@ -428,19 +416,27 @@ var tet_19_map = [
 
 //The following are coded by half steps in 12-tet
 var set_scale_12tet = {
-	'major': [0,2,4,5,7,9,11],
-	'natural_minor': [0,2,3,5,7,8,10],
-	'harmonic_minor': [0,2,3,5,7,8,11],
-	'jazz_minor': [0,2,3,5,7,9,11], //aka heptatonia seconda, Ionian ♭3, Major ♭3
-	'melodic_minor': [0,2,3,5,7,8,9,10,11], //Ascending is jazz minor and descending is natural minor
-	'major_pent': [0,2,4,7,9],
-	'shuddhadhanyasi': [0,3,5,7,10], //Minor Pentatonic
-	'blues_hexatonic': [0,3,5,6,7,10],
-	'jog': [0,3,4,5,7,10],
-	'nilamani': [0,2,5,7,8,11],
-	'hamsa_nandi': [0,1,4,6,9,11], //See https://www.facebook.com/204266/posts/10105744404953223/?extid=0
-	'jyotiswarupini': [0,3,4,6,7,8,10],
+	'major': {'name':'Major (Sankara Bharanam)', 'steps': [0,2,4,5,7,9,11]},
+	'natural_minor': {'name':'Natural Minor (Natabhairavi)', 'steps': [0,2,3,5,7,8,10]},
+	'harmonic_minor': {'name':'Harmonic Minor (Kiravani)', 'steps': [0,2,3,5,7,8,11]},
+	'jazz_minor': {'name':'Jazz Minor (Gourimanohari)', 'steps': [0,2,3,5,7,9,11]}, //aka heptatonia seconda, Ionian ♭3, Major ♭3
+	'melodic_minor': {'name':'Melodic Minor', 'steps': [0,2,3,5,7,8,9,10,11]}, //Ascending is jazz minor and descending is natural minor
+	'major_pent': {'name':'Major Pentatonic', 'steps': [0,2,4,7,9]},
+	'shuddhadhanyasi': {'name':'Minor Pentatonic (Shuddhadhanyasi)', 'steps': [0,3,5,7,10]}, //Minor Pentatonic
+	'blues_hexatonic': {'name':'Blues Hexatonic', 'steps': [0,3,5,6,7,10]},
+	'jog': {'name':'Jog', 'steps': [0,3,4,5,7,10]},
+	'nilamani': {'name':'Nilamani', 'steps': [0,2,5,7,8,11]},
+	'hamsa_nandi': {'name':'Hamsa Nandi', 'steps': [0,1,4,6,9,11]}, //See https://www.facebook.com/204266/posts/10105744404953223/?extid=0
+	'jyotiswarupini': {'name':'Jyotiswarupini', 'steps': [0,3,4,6,7,8,10]},
 };
+
+var custom_select = document.getElementById('custom');
+for(var ss in set_scale_12tet){
+	var opt = document.createElement('option');
+	opt.setAttribute("value",ss);
+	opt.innerHTML = set_scale_12tet[ss]['name'];
+	custom_select.appendChild(opt);
+}
 
 var ratios = {
 	'1/1':1,
@@ -542,7 +538,7 @@ document.getElementById('custom').addEventListener('change', e => {
 			}
 			break;
 		case 'set_scale_12tet':
-			var scale = set_scale_12tet[e.target.value];
+			var scale = set_scale_12tet[e.target.value]['steps'];
 			var scale_len = scale.length;
 			for(let k = 0; k < keys.length; k++){
 				document.getElementById(keys[k]).value = rootNote * Math.pow(2, Math.floor(k/scale_len) + scale[k%scale_len]/12);
